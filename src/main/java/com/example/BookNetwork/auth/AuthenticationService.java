@@ -1,12 +1,15 @@
-package com.example.LOGIN.auth;
+package com.example.BookNetwork.auth;
 
-import com.example.LOGIN.role.RoleRepository;
-import com.example.LOGIN.user.Token;
-import com.example.LOGIN.user.TokenRepository;
-import com.example.LOGIN.user.User;
-import com.example.LOGIN.user.UserRepository;
-import jakarta.validation.Valid;
+import com.example.BookNetwork.email.EmailService;
+import com.example.BookNetwork.email.EmailTemplateName;
+import com.example.BookNetwork.role.RoleRepository;
+import com.example.BookNetwork.user.Token;
+import com.example.BookNetwork.user.TokenRepository;
+import com.example.BookNetwork.user.User;
+import com.example.BookNetwork.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,10 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private  final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    public void register(RegistrationRequest request) {
+    private final EmailService emailService;
+   @Value("${application.mailing.frontend.activation-url}")
+    public  String activationUrl;
+    public void register(RegistrationRequest request) throws MessagingException {
         //default role of user is just user
         var userRole=roleRepository.findByName("USER")
                 .orElseThrow(()->new IllegalStateException("ROLE USER was not initialized"));
@@ -39,8 +45,17 @@ public class AuthenticationService {
 
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken=generateAndSaveActivationToken(user);
+        emailService.sendEmail(
+                user.getEmail(),
+                user.fullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                (String) newToken,
+                "Account activation"
+
+        );
 
     }
 
@@ -66,5 +81,6 @@ public class AuthenticationService {
 
         }
         return codeBuilder.toString();
+        //Secure randomness ensures the tokens are hard to predict
     }
 }

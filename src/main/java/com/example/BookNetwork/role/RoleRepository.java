@@ -1,9 +1,8 @@
-package com.example.LOGIN.role;
+package com.example.BookNetwork.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;
-import java.util.BitSet;
 import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Roles, BigDecimal> {

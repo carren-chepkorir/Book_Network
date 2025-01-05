@@ -1,4 +1,4 @@
-package com.example.LOGIN.security;
+package com.example.BookNetwork.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -45,6 +45,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (userEmail != null  && SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails userDetails=userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt,userDetails)){
+                //needed for updating security context holder
                 UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -53,9 +54,11 @@ public class JWTFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
+//                update security context holder
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
+        //call the rest of filter chain
         filterChain.doFilter(request,response);
 
     }

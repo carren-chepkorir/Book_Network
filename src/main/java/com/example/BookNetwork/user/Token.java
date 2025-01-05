@@ -1,4 +1,4 @@
-package com.example.LOGIN.user;
+package com.example.BookNetwork.user;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Entity
 
 public class Token {
+    @Id
+    @GeneratedValue
     private BigDecimal id;
     private String token;
     private LocalDateTime createdAt;

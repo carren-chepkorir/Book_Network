@@ -1,12 +1,10 @@
-package com.example.LOGIN.auth;
+package com.example.BookNetwork.auth;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 @Data
 @Builder
 public class RegistrationRequest {

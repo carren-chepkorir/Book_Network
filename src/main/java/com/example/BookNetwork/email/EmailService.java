@@ -1,14 +1,17 @@
-package com.example.LOGIN.email;
+package com.example.BookNetwork.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -16,14 +19,14 @@ import java.nio.charset.StandardCharsets;
 public class EmailService {
     private final JavaMailSender mailSender;
     private  final SpringTemplateEngine templateEngine;
-
-    private  void sendEmail(
+   @Async
+    public   void sendEmail(
             String to,
             String username,
             EmailTemplateName emailTemplateName,
             String confirmationUrl,
             String activationCode,
-            String Subject
+            String subject
     ) throws MessagingException {
         String templateName;
         if (emailTemplateName==null){
@@ -37,5 +40,22 @@ public class EmailService {
                 MimeMessageHelper.MULTIPART_MODE_MIXED,
                 StandardCharsets.UTF_8.name()
         );
+        java.util.Map<String,Object> properties=new HashMap<>();
+        properties.put("username",username);
+        properties.put("confirmationUrl",confirmationUrl);
+        properties.put("activation_code",activationCode);
+        Context context=new Context();
+        context.setVariables(properties);
+        helper.setFrom("chepkorircarren9@gmail.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+
+
+        String template=templateEngine.process(templateName,context);
+        helper.setText(template,true);
+        mailSender.send(mimeMessage);
+
+
+
     }
 }

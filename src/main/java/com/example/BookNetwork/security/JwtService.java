@@ -1,11 +1,9 @@
-package com.example.LOGIN.security;
+package com.example.BookNetwork.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.impl.crypto.MacProvider;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 //generate,decode,validate Token
 //do anything related to Token
+//extract username from token
 
 @Service
 public class JwtService {
@@ -26,10 +25,12 @@ public class JwtService {
     @Value("${application.security.jwt.secret-key}")
     public  String secretKey;
     public  String extractUserName(String token){
-        return extractCLaim(token, Claims::getSubject);
+        return extractClaim(token, Claims::getSubject);
+//        we set the subject as setSubject(userDetails.getUsername()),so Claims::getSubject wil extract username
     }
 
-    private <T>T extractCLaim(String token, Function<Claims,T>claimSolver) {
+    private <T>T extractClaim(String token, Function<Claims,T>claimSolver) {
+        //claimSolver determines which part of claim to extract
            final Claims claims=extractAllCLaims(token);
             return claimSolver.apply(claims);
     }
@@ -70,7 +71,7 @@ public class JwtService {
                 ;
     }
     public  boolean isTokenValid(String token,UserDetails userDetails){
-        final String username=extractUserName();
+        final String username=extractUserName(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
@@ -79,9 +80,10 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
-        return extractCLaim(token,Claims::getExpiration);
+        return extractClaim(token,Claims::getExpiration);
     }
 
+    //Converts it into a cryptographic Key object used for signing and verifying tokens.
     private Key getSignInKey() {
         byte [] keyBytes= Decoders.BASE64.decode(secretKey);
             return Keys.hmacShaKeyFor(keyBytes);

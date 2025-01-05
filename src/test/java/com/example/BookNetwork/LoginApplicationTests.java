@@ -1,4 +1,4 @@
-package com.example.LOGIN;
+package com.example.BookNetwork;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

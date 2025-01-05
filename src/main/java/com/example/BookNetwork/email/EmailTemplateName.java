@@ -1,4 +1,4 @@
-package com.example.LOGIN.email;
+package com.example.BookNetwork.email;
 
 
 import lombok.Getter;

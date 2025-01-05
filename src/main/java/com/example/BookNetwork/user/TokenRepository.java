@@ -1,4 +1,4 @@
-package com.example.LOGIN.user;
+package com.example.BookNetwork.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

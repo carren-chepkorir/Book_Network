@@ -1,6 +1,6 @@
-package com.example.LOGIN.security;
+package com.example.BookNetwork.security;
 
-import com.example.LOGIN.user.UserRepository;
+import com.example.BookNetwork.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
