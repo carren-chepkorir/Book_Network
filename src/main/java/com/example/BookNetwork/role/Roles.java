@@ -1,6 +1,6 @@
-package com.example.LOGIN.role;
+package com.example.BookNetwork.role;
 
-import com.example.LOGIN.user.User;
+import com.example.BookNetwork.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

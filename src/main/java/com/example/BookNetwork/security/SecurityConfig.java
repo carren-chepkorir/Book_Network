@@ -1,4 +1,4 @@
-package com.example.LOGIN.security;
+package com.example.BookNetwork.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;

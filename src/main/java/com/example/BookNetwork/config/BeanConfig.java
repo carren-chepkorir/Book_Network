@@ -1,4 +1,4 @@
-package com.example.LOGIN.config;
+package com.example.BookNetwork.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,7 @@
-package com.example.LOGIN.auth;
+package com.example.BookNetwork.auth;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class AuthenticationController {
     public ResponseEntity<?> register(
             @RequestBody @Valid RegistrationRequest request
             //@Valid annotation validates all fields marked as required in request
-    ){
+    ) throws MessagingException {
         authenticationService.register(request);
         return ResponseEntity.accepted().build();
     }

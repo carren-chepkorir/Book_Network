@@ -1,6 +1,6 @@
-package com.example.LOGIN.user;
+package com.example.BookNetwork.user;
 
-import com.example.LOGIN.role.Roles;
+import com.example.BookNetwork.role.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "_user")
 @EntityListeners(AuditingEntityListener.class)
 
 
@@ -50,7 +50,7 @@ public class User implements UserDetails, Principal {
     private LocalDateTime createdDate;
     @LastModifiedDate
     @Column(insertable = false)
-    //means when new record is created ,this is not initialized and it can be null.Only updatable
+    //means when new record is created ,this is not initialized and it can be nullable.Only updatable
     private LocalDateTime lastModifiedDate;
 
     @Override
@@ -104,7 +104,8 @@ public class User implements UserDetails, Principal {
     public boolean isEnabled() {
         return enabled;
     }
-    private String fullName(){
+
+    public String fullName(){
         return firstName+ " " +lastName;
     }
 }

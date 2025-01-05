@@ -16,8 +16,8 @@ spring:
   mail:
     host: localhost
     port: 1025
-    username: ali
-    password: ali
+    username: carren
+    password: carren
     properties:
       mail:
         smtp:
@@ -33,6 +33,12 @@ application:
     jwt:
       secret-key: asdasd
       expiration: 864000
+  mailing:
+     frontend:
+       activation-url: http://localhost:4200/ativate-account
+server:
+  port: 8088
+
 
 #  security:
 #    oauth2:
