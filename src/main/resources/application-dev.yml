@@ -31,7 +31,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key: asdasd
+      secret-key: lOxHwExOXIxApnxMUmLyCGhhG8VsmzvfYluDkk6ExnXXDTF/tLnX3tgzfCOl21ZO
       expiration: 864000
   mailing:
      frontend:
@@ -52,3 +52,5 @@ server:
 #      photos-output-path: ./uploads
 #server:
 #  port: 8088
+
+

@@ -5,10 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("auth")
@@ -24,5 +21,19 @@ public class AuthenticationController {
     ) throws MessagingException {
         authenticationService.register(request);
         return ResponseEntity.accepted().build();
+    }
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody @Valid AuthenticationRequest request
+    ) throws MessagingException {
+         AuthenticationResponse response=authenticationService.authenticate(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/activate-account")
+    public  void activateAccount(
+            @RequestParam String token
+    ) throws MessagingException {
+  authenticationService.activateAccount(token);
     }
 }
