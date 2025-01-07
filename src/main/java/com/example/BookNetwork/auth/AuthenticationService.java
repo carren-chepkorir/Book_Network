@@ -3,18 +3,24 @@ package com.example.BookNetwork.auth;
 import com.example.BookNetwork.email.EmailService;
 import com.example.BookNetwork.email.EmailTemplateName;
 import com.example.BookNetwork.role.RoleRepository;
+import com.example.BookNetwork.security.JwtService;
 import com.example.BookNetwork.user.Token;
 import com.example.BookNetwork.user.TokenRepository;
 import com.example.BookNetwork.user.User;
 import com.example.BookNetwork.user.UserRepository;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -25,9 +31,13 @@ public class AuthenticationService {
     private  final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
    @Value("${application.mailing.frontend.activation-url}")
     public  String activationUrl;
-    public void register(RegistrationRequest request) throws MessagingException {
+
+
+   public void register(RegistrationRequest request) throws MessagingException {
         //default role of user is just user
         var userRole=roleRepository.findByName("USER")
                 .orElseThrow(()->new IllegalStateException("ROLE USER was not initialized"));
@@ -82,5 +92,37 @@ public class AuthenticationService {
         }
         return codeBuilder.toString();
         //Secure randomness ensures the tokens are hard to predict
+    }
+
+    public AuthenticationResponse authenticate(@Valid AuthenticationRequest request) {
+        var auth=authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var claims=new HashMap<String ,Object>();
+        var user=((User)auth.getPrincipal());
+        claims.put("fullName",user.fullName());
+        var jwtToken=jwtService.generateToken(claims,user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken).build();
+
+    }
+
+    public void activateAccount(String token) throws MessagingException {
+       Token savedToken=tokenRepository.findByToken(token)
+               .orElseThrow(()->new RuntimeException("Invalid Token"));
+       if (LocalDateTime.now().isAfter(savedToken.getExpiredAt())){
+           sendValidationEmail(savedToken.getUser());
+           throw  new RuntimeException("Activation token has expired.A new token has been sent to the same email address");
+       }
+        var user=userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+       user.setEnabled(true);
+       userRepository.save(user);
+       savedToken.setValidatedAt(LocalDateTime.now());
+       tokenRepository.save(savedToken);
+
     }
 }
