@@ -2,6 +2,8 @@ package com.example.BookNetwork.book;
 
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class BookMapper {
     Book toBook(BookRequest request){
@@ -15,6 +17,19 @@ public class BookMapper {
 
                 .build();
     }
+BookResponse toBookResponse(Book book){
+        return BookResponse.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .owner(book.getOwner().fullName())
+                .archived(book.getArchived())
+                .sharable(book.getSharable())
+                .isbn(book.getIsbn())
+                .synopsis(book.getSynopsis())
+                .rate(book.getRate())
+//                .cover()
+                .build();
 
+}
 
 }
