@@ -1,5 +1,7 @@
 package com.example.BookNetwork.user;
 
+import com.example.BookNetwork.book.Book;
+import com.example.BookNetwork.history.BookTransactionHistory;
 import com.example.BookNetwork.role.Roles;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,6 +47,10 @@ public class User implements UserDetails, Principal {
     @ManyToMany(fetch = FetchType.EAGER)
     //when user is fetched,it will eagerly fetch list of roles
     private List<Roles> roles;
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books;
+    @OneToMany(mappedBy = "user")
+    private List<BookTransactionHistory> histories;
     @CreatedDate()
     @Column(nullable = false,updatable = false)
     private LocalDateTime createdDate;
