@@ -17,8 +17,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Data
 public class BookTransactionHistory extends BaseEntity {
-    private Boolean returned;
-    private Boolean returnedApproved;
+    private boolean returned;
+    private boolean returnedApproved;
     @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
