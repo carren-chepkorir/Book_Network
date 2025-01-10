@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.example.BookNetwork.book.BookSpecification.withOwner;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -61,5 +63,30 @@ public class BookService {
                 books.isFirst(),
                 books.isLast()
         );
+    }
+
+    public PageResponse<BookResponse> findAllBooksByOwner(Integer pageNo, Integer pageSize, Authentication connectedUser) {
+        User user=(User) connectedUser.getPrincipal();
+        Pageable pageable= PageRequest.of(pageNo,pageSize, Sort.by("createdDate").descending());
+
+        //use Specification to filter
+        Page<Book> books=bookRepository.findAll(withOwner(user.getId()),pageable);
+        List<BookResponse> bookResponses=books.stream()
+                .map(bookMapper::toBookResponse)
+                .toList();
+        return  new PageResponse<>(
+                bookResponses,
+                books.getNumber(),
+                books.getSize(),
+                books.getTotalElements(),
+                books.getTotalPages(),
+                books.isFirst(),
+                books.isLast()
+        );
+
+    }
+
+    public PageResponse<BookResponse> findAllBorrowedBooks(Integer pageNo, Integer pageSize, Authentication connectedUser) {
+                    return null;
     }
 }
