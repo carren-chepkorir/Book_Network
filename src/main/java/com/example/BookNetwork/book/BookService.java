@@ -1,5 +1,6 @@
 package com.example.BookNetwork.book;
 
+import com.example.BookNetwork.book.exception.OperationNotPermittedException;
 import com.example.BookNetwork.common.GenericResponse;
 import com.example.BookNetwork.common.ResponseStatusEnum;
 import com.example.BookNetwork.history.BookTransactionHistory;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import static com.example.BookNetwork.book.BookSpecification.withOwner;
 
@@ -126,5 +128,20 @@ public class BookService {
                 allBorrowedBooks.isFirst(),
                 allBorrowedBooks.isLast()
         );
+    }
+
+    public BigDecimal updateSharableStatus(BigDecimal bookId, Authentication connectedUser) {
+       Book book=bookRepository.findById(bookId)
+               .orElseThrow(()->new EntityNotFoundException("Book not found for ID:: "+ bookId));
+
+        User user=(User) connectedUser.getPrincipal();
+
+        if (!Objects.equals(book.getOwner().getId(),user.getBooks())){
+            throw new  OperationNotPermittedException("You cannot update books Sharable status");
+        }
+        book.setSharable(!book.isSharable());
+        bookRepository.save(book);
+        return bookId;
+
     }
 }
