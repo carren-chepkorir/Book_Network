@@ -80,4 +80,11 @@ public class BookController {
     ){
         return ResponseEntity.ok(bookService.updateSharableStatus(bookId,connectedUser));
     }
+    @PatchMapping("/archived/{book-id}")
+    public ResponseEntity<BigDecimal> updateArchivedStatus(
+            @PathVariable("{book-id}") BigDecimal bookId,
+            Authentication connectedUser
+    ){
+        return ResponseEntity.ok(bookService.updateArchivedStatus(bookId,connectedUser));
+    }
 }
