@@ -1,5 +1,6 @@
 package com.example.BookNetwork.book;
 
+import com.example.BookNetwork.history.BookTransactionHistory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,4 +33,15 @@ BookResponse toBookResponse(Book book){
 
 }
 
+    public BorrowedBooksResponse toBorrowedBooks(BookTransactionHistory bookTransactionHistory) {
+        return BorrowedBooksResponse.builder()
+                .id(bookTransactionHistory.getBook().getId())
+                .title(bookTransactionHistory.getBook().getTitle())
+                .authorName(bookTransactionHistory.getBook().getAuthorName())
+                .rate(bookTransactionHistory.getBook().getRate())
+                .isbn(bookTransactionHistory.getBook().getIsbn())
+                .returned(bookTransactionHistory.isReturned())
+                .returnedApproved(bookTransactionHistory.isReturnedApproved())
+                .build();
+    }
 }

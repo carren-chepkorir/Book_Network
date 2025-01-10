@@ -2,6 +2,8 @@ package com.example.BookNetwork.book;
 
 import com.example.BookNetwork.common.GenericResponse;
 import com.example.BookNetwork.common.ResponseStatusEnum;
+import com.example.BookNetwork.history.BookTransactionHistory;
+import com.example.BookNetwork.history.BookTransactionHistoryRepository;
 import com.example.BookNetwork.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -25,6 +27,7 @@ import static com.example.BookNetwork.book.BookSpecification.withOwner;
 public class BookService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
+    private final BookTransactionHistoryRepository historyRepository;
     public BigDecimal save(@Valid BookRequest request, Authentication connectedUser) {
         User user=(User) connectedUser.getPrincipal();
         Book book=bookMapper.toBook(request);
@@ -86,7 +89,24 @@ public class BookService {
 
     }
 
-    public PageResponse<BookResponse> findAllBorrowedBooks(Integer pageNo, Integer pageSize, Authentication connectedUser) {
-                    return null;
+    public PageResponse<BorrowedBooksResponse> findAllBorrowedBooks(Integer pageNo, Integer pageSize, Authentication connectedUser) {
+        User user=(User) connectedUser.getPrincipal();
+        Pageable pageable= PageRequest.of(pageNo,pageSize, Sort.by("createdDate").descending());
+        Page<BookTransactionHistory>  allBorrowedBooks=historyRepository.findAllBorrowedBooks(pageable,user.getId());
+        List<BorrowedBooksResponse> responseList=allBorrowedBooks.stream()
+                .map(bookMapper::toBorrowedBooks)
+                .toList();
+        return  new PageResponse<>(
+                responseList,
+                allBorrowedBooks.getNumber(),
+                allBorrowedBooks.getSize(),
+                allBorrowedBooks.getTotalElements(),
+                allBorrowedBooks.getTotalPages(),
+                allBorrowedBooks.isFirst(),
+                allBorrowedBooks.isLast()
+        );
+
+
+
     }
 }
