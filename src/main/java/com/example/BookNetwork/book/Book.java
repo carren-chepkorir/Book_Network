@@ -23,8 +23,8 @@ public class Book extends BaseEntity {
     private String isbn;
     private String bookCover;
     private String authorName;
-    private Boolean archived;
-    private Boolean sharable;
+    private boolean archived;
+    private boolean sharable;
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;

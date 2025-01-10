@@ -72,4 +72,12 @@ public class BookController {
         return ResponseEntity.ok(bookService.findAllReturnedBooks(pageNo,pageSize,connectedUser));
 
     }
+
+    @PatchMapping("/sharable/{book-id}")
+    public ResponseEntity<BigDecimal> updateSharableStatus(
+            @PathVariable("{book-id}") BigDecimal bookId,
+            Authentication connectedUser
+    ){
+        return ResponseEntity.ok(bookService.updateSharableStatus(bookId,connectedUser));
+    }
 }
