@@ -144,4 +144,18 @@ public class BookService {
         return bookId;
 
     }
+
+    public BigDecimal updateArchivedStatus(BigDecimal bookId, Authentication connectedUser) {
+        Book book=bookRepository.findById(bookId)
+                .orElseThrow(()->new EntityNotFoundException("Book not found for ID:: "+ bookId));
+
+        User user=(User) connectedUser.getPrincipal();
+
+        if (!Objects.equals(book.getOwner().getId(),user.getBooks())){
+            throw new  OperationNotPermittedException("You cannot update  other's books Archived status");
+        }
+        book.setArchived(!book.isArchived());
+        bookRepository.save(book);
+        return bookId;
+    }
 }
