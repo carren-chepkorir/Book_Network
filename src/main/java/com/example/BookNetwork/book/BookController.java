@@ -94,4 +94,11 @@ public class BookController {
     ){
         return ResponseEntity.ok(bookService.borrowBook(bookId,connectedUser));
     }
+    @PatchMapping("/borrow/return/{book-id}")
+    public ResponseEntity<BigDecimal> returnBorrowedBook(
+            @PathVariable("{book-id}") BigDecimal bookId,
+            Authentication connectedUser
+    ){
+        return ResponseEntity.ok(bookService.returnBorrowedBook(bookId,connectedUser));
+    }
 }
