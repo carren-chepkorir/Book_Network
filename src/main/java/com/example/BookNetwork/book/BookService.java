@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.example.BookNetwork.book.BookSpecification.withOwner;
 
@@ -183,5 +184,26 @@ public class BookService {
                 .returnedApproved(false)
                 .build();
         return historyRepository.save(bookTransactionHistory).getId();
+    }
+
+    public BigDecimal returnBorrowedBook(BigDecimal bookId, Authentication connectedUser) {
+        Book book=bookRepository.findById(bookId)
+                .orElseThrow(()->new EntityNotFoundException("Book not found for ID:: "+ bookId));
+
+        if (book.isArchived() || !book.isSharable()){
+            throw new  OperationNotPermittedException("Requested book cannot be returned since it is archived or Not Sharable");
+        }
+        User user=(User) connectedUser.getPrincipal();
+
+        if (Objects.equals(book.getOwner().getId(),user.getBooks())){
+            throw new  OperationNotPermittedException("You cannot borrow or return your own book");
+        }
+       BookTransactionHistory returnedBook=historyRepository.findBookByBookIdAndUserId(bookId,user.getId())
+               .orElseThrow(()-> new OperationNotPermittedException("You did not borrow this book"));
+
+        returnedBook.setReturned(true);
+        return historyRepository.save(returnedBook).getId();
+
+
     }
 }
