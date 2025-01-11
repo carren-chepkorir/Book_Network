@@ -137,8 +137,8 @@ public class BookService {
 
         User user=(User) connectedUser.getPrincipal();
 
-        if (!Objects.equals(book.getOwner().getId(),user.getBooks())){
-            throw new  OperationNotPermittedException("You cannot update books Sharable status");
+        if (!Objects.equals(book.getOwner().getId(),user.getId())){
+            throw new  OperationNotPermittedException("You cannot update other's books Sharable status");
         }
         book.setSharable(!book.isSharable());
         bookRepository.save(book);
@@ -152,7 +152,7 @@ public class BookService {
 
         User user=(User) connectedUser.getPrincipal();
 
-        if (!Objects.equals(book.getOwner().getId(),user.getBooks())){
+        if (!Objects.equals(book.getOwner().getId(),user.getId())){
             throw new  OperationNotPermittedException("You cannot update  other's books Archived status");
         }
         book.setArchived(!book.isArchived());
@@ -169,7 +169,7 @@ public class BookService {
         }
         User user=(User) connectedUser.getPrincipal();
 
-        if (Objects.equals(book.getOwner().getId(),user.getBooks())){
+        if (Objects.equals(book.getOwner().getId(),user.getId())){
             throw new  OperationNotPermittedException("You cannot borrow your own book");
         }
         final  boolean isAlreadyBorrowed=historyRepository.isAlreadyBorrowed(bookId,user.getId());
@@ -195,7 +195,7 @@ public class BookService {
         }
         User user=(User) connectedUser.getPrincipal();
 
-        if (Objects.equals(book.getOwner().getId(),user.getBooks())){
+        if (Objects.equals(book.getOwner().getId(),user.getId())){
             throw new  OperationNotPermittedException("You cannot borrow or return your own book");
         }
        BookTransactionHistory returnedBook=historyRepository.findBookByBookIdAndUserId(bookId,user.getId())
@@ -205,5 +205,24 @@ public class BookService {
         return historyRepository.save(returnedBook).getId();
 
 
+    }
+
+    public BigDecimal ApproveReturnedBorrowedBook(BigDecimal bookId, Authentication connectedUser) {
+        Book book=bookRepository.findById(bookId)
+                .orElseThrow(()->new EntityNotFoundException("Book not found for ID:: "+ bookId));
+
+        if (book.isArchived() || !book.isSharable()){
+            throw new  OperationNotPermittedException("Requested book cannot be returned since it is archived or Not Sharable");
+        }
+        User user=(User) connectedUser.getPrincipal();
+
+        if (Objects.equals(book.getOwner().getId(),user.getId())){
+            throw new  OperationNotPermittedException("You cannot borrow or return your own book");
+        }
+        BookTransactionHistory returnedBook=historyRepository.findBookByBookIdAndOwnerId(bookId,user.getId())
+                .orElseThrow(()-> new OperationNotPermittedException("You did not return this book"));
+
+        returnedBook.setReturnedApproved(true);
+        return historyRepository.save(returnedBook).getId();
     }
 }
