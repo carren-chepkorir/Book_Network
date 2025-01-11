@@ -1,5 +1,6 @@
 package com.example.BookNetwork.book;
 
+import com.example.BookNetwork.file.FileUtils;
 import com.example.BookNetwork.history.BookTransactionHistory;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,13 @@ BookResponse toBookResponse(Book book){
                 .id(book.getId())
                 .title(book.getTitle())
                 .owner(book.getOwner().fullName())
-                .archived(book.getArchived())
-                .sharable(book.getSharable())
+                .archived(book.isArchived())
+                .sharable(book.isSharable())
                 .isbn(book.getIsbn())
                 .synopsis(book.getSynopsis())
                 .rate(book.getRate())
-//                .cover()
+                .cover(FileUtils.readFileFromLocation(book.getBookCover()))
+
                 .build();
 
 }

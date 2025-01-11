@@ -3,6 +3,7 @@ package com.example.BookNetwork.book;
 import com.example.BookNetwork.book.exception.OperationNotPermittedException;
 import com.example.BookNetwork.common.GenericResponse;
 import com.example.BookNetwork.common.ResponseStatusEnum;
+import com.example.BookNetwork.file.FileStorageService;
 import com.example.BookNetwork.history.BookTransactionHistory;
 import com.example.BookNetwork.history.BookTransactionHistoryRepository;
 import com.example.BookNetwork.user.User;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +32,8 @@ import static com.example.BookNetwork.book.BookSpecification.withOwner;
 public class BookService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
+
+    private final FileStorageService fileStorageService;
     private final BookTransactionHistoryRepository historyRepository;
     public BigDecimal save(@Valid BookRequest request, Authentication connectedUser) {
         User user=(User) connectedUser.getPrincipal();
@@ -224,5 +228,14 @@ public class BookService {
 
         returnedBook.setReturnedApproved(true);
         return historyRepository.save(returnedBook).getId();
+    }
+
+    public void uploadBookCoverPicture(MultipartFile file, Authentication connectedUser, BigDecimal bookId) {
+        Book book=bookRepository.findById(bookId)
+                .orElseThrow(()->new EntityNotFoundException("Book not found for ID:: "+ bookId));
+
+        var profilePicture = fileStorageService.saveFile(file, connectedUser.getName());
+        book.setBookCover(profilePicture);
+        bookRepository.save(book);
     }
 }
