@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public interface FeedBackRepository  extends JpaRepository<Feedback, BigDecimal> {
 
-    @Query("SELECT feedBack " +
+    @Query("SELECT feedback " +
             "FROM Feedback feedback" +
             " WHERE feedback.book.id = :bookId")
     Page<Feedback> findAllByBookId(BigDecimal bookId, Pageable pageable);

@@ -14,7 +14,7 @@ public interface BookRepository  extends JpaRepository<Book,BigDecimal>, JpaSpec
                 "            FROM Book book\n" +
                 "            WHERE book.archived = false\n" +
                 "            AND book.sharable = true\n" +
-                "            AND book.owner.id ! =:userId"
+                "            AND book.owner.id !=:userId"
 )
     Page<Book> findAllDisplayableBooks(Pageable pageable, BigDecimal userId);
 }
