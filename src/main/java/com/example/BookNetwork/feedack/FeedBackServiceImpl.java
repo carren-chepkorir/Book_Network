@@ -2,14 +2,19 @@ package com.example.BookNetwork.feedack;
 
 import com.example.BookNetwork.book.Book;
 import com.example.BookNetwork.book.BookRepository;
+import com.example.BookNetwork.book.PageResponse;
 import com.example.BookNetwork.book.exception.OperationNotPermittedException;
 import com.example.BookNetwork.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 @RequiredArgsConstructor
 @Service
@@ -33,5 +38,25 @@ public class FeedBackServiceImpl implements FeedBackService{
         }
         Feedback feedback=feedbackMapper.toFeedback(request);
         return feedBackRepository.save(feedback).getId();
+    }
+
+    @Override
+    public PageResponse<FeedBackResponse> getFeedbacks(BigDecimal bookId, Integer pageNo, Integer pageSize, Authentication connectedUser) {
+        Pageable pageable= PageRequest.of(pageNo,pageSize);
+        User user=(User) connectedUser.getPrincipal();
+        Page<Feedback> feedbacks=feedBackRepository.findAllByBookId(bookId,pageable);
+        List<FeedBackResponse> feedBackResponses=feedbacks.stream()
+                .map(feedback -> feedbackMapper.toFeedbackResponse(feedback,user.getId()))
+                .toList();
+
+        return new PageResponse<>(
+                feedBackResponses,
+                feedbacks.getNumber(),
+                feedbacks.getSize(),
+                feedbacks.getTotalElements(),
+                feedbacks.getTotalPages(),
+                feedbacks.isFirst(),
+                feedbacks.isLast()
+        );
     }
 }
