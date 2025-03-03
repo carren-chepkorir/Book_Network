@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class FeedBackController {
     private final FeedBackService feedBackService;
-
+    @PostMapping
     public ResponseEntity<BigDecimal>saveFeedBack(
            @Valid @RequestBody FeedBackRequest request,
            Authentication connectedUser

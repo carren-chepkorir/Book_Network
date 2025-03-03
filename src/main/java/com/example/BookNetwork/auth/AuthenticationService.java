@@ -74,7 +74,7 @@ public class AuthenticationService {
         var token= Token.builder()
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
-                .expiredAt(LocalDateTime.now().plusMinutes(15))
+                .expiredAt(LocalDateTime.now().plusHours(24))
                 .user(user)
                 .build();
         tokenRepository.save(token);

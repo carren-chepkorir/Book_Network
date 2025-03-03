@@ -35,6 +35,7 @@ public class SecurityConfig {
                        req.requestMatchers(
                                "/auth/**",
                                        "/v2/api-docs",
+                                       "/api/v1/books/all-books",
                                        "/v3/api-docs",
                                        "/v3/api-docs/**",
                                        "/swagger-resources",

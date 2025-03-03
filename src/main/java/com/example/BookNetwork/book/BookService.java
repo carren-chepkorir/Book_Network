@@ -7,6 +7,7 @@ import com.example.BookNetwork.file.FileStorageService;
 import com.example.BookNetwork.history.BookTransactionHistory;
 import com.example.BookNetwork.history.BookTransactionHistoryRepository;
 import com.example.BookNetwork.user.User;
+import com.example.BookNetwork.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,15 +33,38 @@ import static com.example.BookNetwork.book.BookSpecification.withOwner;
 public class BookService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
 
     private final FileStorageService fileStorageService;
     private final BookTransactionHistoryRepository historyRepository;
-    public BigDecimal save(@Valid BookRequest request, Authentication connectedUser) {
-        User user=(User) connectedUser.getPrincipal();
-        Book book=bookMapper.toBook(request);
-        book.setOwner(user);
-        Book savedBook = bookRepository.save(book);
-        return savedBook.getId();
+    public  GenericResponse<List<BigDecimal>> save(@Valid List<BookRequest> requests, Authentication connectedUser) {
+
+        try {
+            List<BigDecimal> savedBookIds=requests.stream().map(request -> {
+                User user=(User) connectedUser.getPrincipal();
+                Book book=bookMapper.toBook(request);
+                book.setOwner(user);
+                Book savedBook = bookRepository.save(book);
+                log.info("Saved Book ID class: " + savedBook.getId().getClass().getName());
+
+                return savedBook.getId();
+            }).toList();
+            return GenericResponse.<List<BigDecimal>>builder()
+                    .status(ResponseStatusEnum.SUCCESS)
+                    .message("Successfully added  books")
+                    ._embedded(savedBookIds)
+                    .build();
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return GenericResponse.<List<BigDecimal>>builder()
+                    .status(ResponseStatusEnum.ERROR)
+                    .message("Failed to add a Book "+e.getCause()+ e.getMessage())
+                    ._embedded(null)
+                    .build();
+        }
+
+       
     }
 
 
@@ -237,5 +261,41 @@ public class BookService {
         var profilePicture = fileStorageService.saveFile(file, connectedUser.getName());
         book.setBookCover(profilePicture);
         bookRepository.save(book);
+    }
+
+    public GenericResponse<?> addBooks(List<BookRequestDto> requests) {
+
+        try {
+            List<Book> books = requests.stream().map(request -> {
+                Book book = new Book();
+                book.setTitle(request.getTitle());
+                book.setSynopsis(request.getSynopsis());
+                book.setIsbn(request.getIsbn());
+                book.setBookCover(request.getBookCover());
+                book.setAuthorName(request.getAuthorName());
+                book.setArchived(request.getArchived() != null ? request.getArchived() : false);
+                book.setSharable(request.getSharable() != null ? request.getSharable() : false);
+
+                // If ownerId is provided, set the owner
+                if (request.getOwnerId() != null) {
+                    User owner = userRepository.findById(request.getOwnerId())
+                            .orElseThrow(() -> new RuntimeException("Owner not found with ID: " + request.getOwnerId()));
+                    book.setOwner(owner);
+                }
+
+                return book;
+            }).toList();
+
+
+            List<Book> savedBooks = bookRepository.saveAll(books);
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GenericResponse<>("Failed to add book", ResponseStatusEnum.ERROR , null);
+        }
+        return null;
     }
 }

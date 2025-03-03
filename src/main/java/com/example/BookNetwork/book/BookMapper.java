@@ -10,14 +10,15 @@ import java.math.BigDecimal;
 public class BookMapper {
     Book toBook(BookRequest request){
         return Book.builder()
-                .id(request.id())
+//                .id(request.id())
                 .title(request.title())
                 .authorName(request.authorName())
+                .isbn(request.isbn())
                 .synopsis(request.synopsis())
                 .sharable(request.sharable())
                 .archived(false)
-
                 .build();
+
     }
 BookResponse toBookResponse(Book book){
         return BookResponse.builder()
