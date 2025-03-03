@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("books")
@@ -20,8 +21,9 @@ import java.math.BigDecimal;
 public class BookController {
 
     private final BookService bookService;
-    public ResponseEntity<BigDecimal> saveBook
-            (@RequestBody @Valid BookRequest request,
+    @PostMapping
+    public ResponseEntity<GenericResponse<List<BigDecimal>>>saveBook
+            (@RequestBody @Valid List<BookRequest>  request,
              Authentication connectedUser)
     {
         return ResponseEntity.ok(bookService.save(request,connectedUser));
@@ -38,6 +40,20 @@ public class BookController {
         return ResponseEntity.badRequest().body(response);
 
     }
+    @PostMapping("/all-books")
+    public ResponseEntity<GenericResponse<?>> addBooks(
+             @RequestBody List<BookRequestDto> request
+
+    ){
+        GenericResponse<?> response=bookService.addBooks(request);
+        if (response !=null && response.getStatus()== ResponseStatusEnum.SUCCESS){
+            return  ResponseEntity.ok().body(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+
+    }
+
+
     @GetMapping()
     public ResponseEntity<PageResponse<BookResponse>> findAllBooks(
             @RequestParam(name = "pageNo",defaultValue = "0",required = false)Integer pageNo,
